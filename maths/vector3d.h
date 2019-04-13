@@ -79,7 +79,7 @@ namespace Math {
 		}
 
 		__host__ __device__
-		Vector operator/(float a) {
+		Vector operator/=(float a) {
 			float invA = 1.0f / a;
 			x *= invA;
 			y *= invA;

@@ -11,17 +11,17 @@ namespace Scene {
 		Math::Point center;
 	public:
 		__host__ __device__
-		Camera(float fovY, const Math::Point& eye, const Math::Point& at, const Math::Vector& vUp) : center(at) {
+		Camera(float fovY, const Math::Point& eye, const Math::Point& at, const Math::Vector& vUp) : center(eye) {
 			float halfHeight = tan(fovY);
 			float halfWidth = 2.f * halfHeight;
 
-			Math::Vector z = Math::Normalize(at - eye);
-			Math::Vector x = Math::Cross(z, vUp);
-			Math::Vector y = Math::Cross(x, z);
+			Math::Vector z = Math::Normalize(eye - at);
+			Math::Vector x = Math::Cross(vUp, z);
+			Math::Vector y = Math::Cross(z, x);
 
 			right = 2.f * halfWidth * x;
 			up = 2.f * halfHeight * y;
-			origin = -halfHeight * y - halfWidth * x - z;
+			origin = eye - halfHeight * y - halfWidth * x - z;
 		}
 
 		__device__
