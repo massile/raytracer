@@ -2,11 +2,16 @@
 
 #include "../maths/ray.h"
 
+namespace Material {
+	class Material;
+}
+
 namespace Shape {
 	struct Interface {
 		float t;
 		Math::Vector normal;
 		Math::Point point;
+		Material::Material *material;
 	};
 
 	class Collider {

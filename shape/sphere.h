@@ -6,10 +6,13 @@ namespace Shape {
 	class Sphere : public Collider {
 	public:
 		Math::Point center;
+		Material::Material* material;
 		float radius;
+
 	public:
 		__device__
-		Sphere(const Math::Point& center, float radius) : center(center), radius(radius) {}
+		Sphere(const Math::Point& center, float radius, Material::Material* material) :
+			center(center), radius(radius), material(material) {}
 
 		__device__
 		bool Hit(const Math::Ray& ray, Interface& interface, float tMin, float tMax) const override {
@@ -35,6 +38,7 @@ namespace Shape {
 			interface.t = t;
 			interface.point = ray(t);
 			interface.normal = (interface.point - center) / radius;
+			interface.material = material;
 			
 			return true;
 		}

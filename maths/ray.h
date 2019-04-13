@@ -7,6 +7,8 @@ namespace Math {
 		Point origin;
 		Vector direction;
 
+		Ray() = default;
+
 		__device__
 		Ray(const Point& origin, const Vector& direction) : origin(origin), direction(direction) {}
 

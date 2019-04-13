@@ -1,23 +1,24 @@
 #pragma once
 
-#include "maths/operations.h"
-#include "image/ppm.h"
 #include "scene/camera.h"
-#include "shape/sphere.h"
+#include "materials/lambert.h"
 #include "shape/container.h"
 
 __device__
 Image::Color ComputeColor(const Math::Ray& ray, Shape::Collider* collider, curandState* random, int depth = 0);
 
 __global__
-void InitColliders(Shape::Collider** container, Shape::Collider** spheres, int size) {
+void InitColliders(Shape::Collider** container, Shape::Collider** spheres, Material::Material** materials, int size) {
 	if (threadIdx.x != 0 || blockIdx.x != 0) return;
+	materials[0] = new Material::Lambert(Image::Color(1.0f, 0.4f, 0.3f));
+	materials[1] = new Material::Lambert(Image::Color(0.8f, 0.8f, 0.8f));
+
 	for (int j = 0; j < 3; ++j)	{
 		for (int i = 0; i < 3; ++i) {
-			spheres[i + j*3] = new Shape::Sphere(Math::Point((i-1) * 0.8f, 0, (j-1) * 0.8f), 0.3f);			
+			spheres[i + j*3] = new Shape::Sphere(Math::Point((i-1) * 0.8f, 0, (j-1) * 0.8f), 0.3f, materials[0]);			
 		}
 	}
-	spheres[9] = new Shape::Sphere(Math::Point(0, -100.3f, -1.f), 100.f);
+	spheres[9] = new Shape::Sphere(Math::Point(0, -100.3f, -1.f), 100.f, materials[1]);
 	*container = new Shape::Container(spheres, size);
 }
 

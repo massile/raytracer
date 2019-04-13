@@ -7,6 +7,8 @@ private:
 	Image::Image* image;
 	Scene::Camera* dCamera;
 	Shape::Collider **dContainer, **dSpheres;
+	Material::Material **dMaterials;
+
 	curandState *dRandState;
 
 	dim3 blocks;
@@ -20,17 +22,22 @@ public:
 			cudaMallocManaged(&dCamera, sizeof(Scene::Camera));
 			cudaMemcpy(dCamera, hCamera, sizeof(Scene::Camera), cudaMemcpyHostToDevice);
 			
-			int size = 10;
+			int shapeSize = 10;
+			int materialSize = 2;
 			cudaMalloc(&dContainer, sizeof(Shape::Collider*));
-			cudaMalloc(&dSpheres, size * sizeof(Shape::Collider*));
-			InitColliders<<<1, 1>>>(dContainer, dSpheres, size);
+			cudaMalloc(&dSpheres, shapeSize * sizeof(Shape::Collider*));
+			cudaMalloc(&dMaterials, materialSize * sizeof(Material::Lambert*));
+			InitColliders<<<1, 1>>>(dContainer, dSpheres, dMaterials, shapeSize);
 			cudaDeviceSynchronize();
 
 			cudaMalloc(&dRandState, image->width * image->height * sizeof(curandState));
 			InitRandomizer<<<blocks, threads>>>(dRandState, image->width, image->height);
+			cudaDeviceSynchronize();
 		}
 
 	~Renderer() {
+		cudaFree(dMaterials);
+		cudaFree(dSpheres);
 		cudaFree(dContainer);
 		cudaFree(dCamera);
 	}
@@ -50,8 +57,10 @@ Image::Color ComputeColor(const Math::Ray& ray, Shape::Collider* collider, curan
 
 	Shape::Interface interface;
 	if (collider->Hit(ray, interface, 0.001f, 10000.0f)) {
-		Math::Vector direction = interface.normal + Math::RandomInSphere(random);
-		return 0.5f * ComputeColor(Math::Ray(interface.point, direction), collider, random, depth + 1);
+		Image::Color color;
+		Math::Ray out;
+		interface.material->Scatter(interface, color, out, random);
+		return color * ComputeColor(out, collider, random, depth + 1);
 	}
 
 	Math::Vector normDir = Math::Normalize(ray.direction);
