@@ -23,7 +23,7 @@ public:
 			cudaMemcpy(dCamera, hCamera, sizeof(Scene::Camera), cudaMemcpyHostToDevice);
 			
 			int shapeSize = 10;
-			int materialSize = 2;
+			int materialSize = 10;
 			cudaMalloc(&dContainer, sizeof(Shape::Collider*));
 			cudaMalloc(&dSpheres, shapeSize * sizeof(Shape::Collider*));
 			cudaMalloc(&dMaterials, materialSize * sizeof(Material::Lambert*));
@@ -51,7 +51,7 @@ public:
 
 __device__
 Image::Color ComputeColor(const Math::Ray& ray, Shape::Collider* collider, curandState* random, int depth) {
-	if (depth == 50) {
+	if (depth == 45) {
 		return Image::Color(0.f, 0.f, 0.f);
 	}
 
@@ -59,7 +59,10 @@ Image::Color ComputeColor(const Math::Ray& ray, Shape::Collider* collider, curan
 	if (collider->Hit(ray, interface, 0.001f, 10000.0f)) {
 		Image::Color color;
 		Math::Ray out;
-		interface.material->Scatter(interface, color, out, random);
+		bool shouldScatter = interface.material->Scatter(ray, interface, color, out, random);
+		if (!shouldScatter) {
+			return Image::Color(0.f, 0.f, 0.f);
+		}
 		return color * ComputeColor(out, collider, random, depth + 1);
 	}
 

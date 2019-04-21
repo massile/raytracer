@@ -10,6 +10,6 @@ namespace Material {
 	class Material {
 	public:
 		__device__
-		virtual bool Scatter(const Shape::Interface& surface, Image::Color& color, Math::Ray& out, curandState* random) const = 0;	
+		virtual bool Scatter(const Math::Ray& in, const Shape::Interface& surface, Image::Color& color, Math::Ray& out, curandState* random) const = 0;	
 	};
 }

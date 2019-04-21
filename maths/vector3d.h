@@ -34,6 +34,11 @@ namespace Math {
 		}
 
 		__host__ __device__
+		Vector operator-() const {
+			return Vector(-x, -y, -z);
+		}
+
+		__host__ __device__
 		Vector operator-(const Vector& v) const {
 			return Vector(x - v.x, y - v.y, z - v.z);
 		}
@@ -128,4 +133,22 @@ namespace Math {
 	inline Vector Normalize(const Vector& v) {
 		return v / Length(v);
 	}
+
+	__host__ __device__
+	inline Vector Reflect(const Vector& v, const Vector& axis) {
+		return v - 2 * Dot(v, axis) * axis;
+	}
+
+	__host__ __device__
+	bool Refract(const Vector& v, const Vector& axis, float refIndex, Math::Vector& out) {
+		Math::Vector normVector = Math::Normalize(v);
+		float dt = Math::Dot(normVector, axis);
+		float discrim = 1.0f - refIndex * refIndex * (1.f - dt * dt);
+		if (discrim <= 0.f) {
+			return false;
+		}
+		out = refIndex * normVector - (refIndex * dt + sqrt(discrim)) * axis;
+		return true;
+	}
+
 }

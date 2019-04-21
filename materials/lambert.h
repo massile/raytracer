@@ -12,7 +12,7 @@ namespace Material {
 		Lambert(const Image::Color& albedo) : albedo(albedo) {}
 
 		__device__
-		bool Scatter(const Shape::Interface& surface, Image::Color& color, Math::Ray& out, curandState* random) const override {
+		bool Scatter(const Math::Ray& in, const Shape::Interface& surface, Image::Color& color, Math::Ray& out, curandState* random) const override {
 			color = albedo;
 			out = Math::Ray(surface.point, surface.normal + Math::RandomInSphere(random));
 			return true;

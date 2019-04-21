@@ -12,4 +12,11 @@ namespace Math {
 		} while(Math::LengthSquared(direction) >= 1.0f);
 		return direction;
 	}
+
+	__device__
+	float SchlickPolynom(float cos, float iof) {
+		float r0 = (1.f - iof) / (1.f + iof);
+		r0 *= r0;
+		return r0 + (1.f - r0) * pow(1.f - cos, 5);
+	}
 }
