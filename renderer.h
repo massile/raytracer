@@ -22,7 +22,7 @@ public:
 			cudaMallocManaged(&dCamera, sizeof(Scene::Camera));
 			cudaMemcpy(dCamera, hCamera, sizeof(Scene::Camera), cudaMemcpyHostToDevice);
 			
-			int shapeSize = 8*2 + 2;
+			int shapeSize = 8*2 + 3;
 			int materialSize = 10;
 			cudaMalloc(&dContainer, sizeof(Shape::Collider*));
 			cudaMalloc(&dSpheres, shapeSize * sizeof(Shape::Collider*));
@@ -68,5 +68,5 @@ Image::Color ComputeColor(const Math::Ray& ray, Shape::Collider* collider, curan
 
 	Math::Vector normDir = Math::Normalize(ray.direction);
 	float t = 0.5f * normDir.y + 0.5f;
-	return Math::Lerp(t, Image::Color(1.0f, 1.0f, 1.0f), Image::Color(0.3f, 0.7f, 0.9f));
+	return Math::Lerp(t, Image::Color(1.0f, 1.0f, 1.0f), Image::Color(0.5f, 0.8f, 0.9f));
 }

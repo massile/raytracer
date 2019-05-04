@@ -4,6 +4,7 @@
 #include "../maths/ray.h"
 #include "../maths/operations.h"
 #include "../image/ppm.h"
+#include "./constant_texture.h"
 #include "../shape/sphere.h"
 
 namespace Material {

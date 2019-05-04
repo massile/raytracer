@@ -5,15 +5,15 @@
 namespace Material {
 	class Lambert : public Material {
 	private:
-		Image::Color albedo;
+		Texture* albedo;
 
 	public:
 		__device__
-		Lambert(const Image::Color& albedo) : albedo(albedo) {}
+		Lambert(Texture* albedo) : albedo(albedo) {}
 
 		__device__
 		bool Scatter(const Math::Ray& in, const Shape::Interface& surface, Image::Color& color, Math::Ray& out, curandState* random) const override {
-			color = albedo;
+			color = albedo->UVProjection(0, 0, surface.point);
 			out = Math::Ray(surface.point, surface.normal + Math::RandomInSphere(random));
 			return true;
 		}
