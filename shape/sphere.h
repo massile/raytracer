@@ -10,6 +10,8 @@ namespace Shape {
 		float radius;
 
 	public:
+		Sphere() = default;
+		
 		__device__
 		Sphere(const Math::Point& center, float radius, Material::Material* material) :
 			center(center), radius(radius), material(material) {}

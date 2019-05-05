@@ -13,9 +13,9 @@ namespace Image {
 			for (int j = height - 1; j >= 0; --j) {
 				for (int i = 0; i < width; ++i) {
 					Color pixel = pixels[i + j * width];
-					file << int(pixel.r * 255.99f) << ' '
-						 << int(pixel.g * 255.99f) << ' '
-						 << int(pixel.b * 255.99f) << std::endl;
+					file << min(255, int(pixel.r * 255.99f)) << ' '
+						 << min(255, int(pixel.g * 255.99f)) << ' '
+						 << min(255, int(pixel.b * 255.99f)) << std::endl;
 				}
 			}
 			file.close();

@@ -12,5 +12,11 @@ namespace Material {
 	public:
 		__device__
 		virtual bool Scatter(const Math::Ray& in, const Shape::Interface& surface, Image::Color& color, Math::Ray& out, curandState* random) const = 0;	
+		
+		__device__
+		virtual Image::Color Emitted(const Math::Vector& point) const {
+			return Image::Color(0.f, 0.f, 0.f);
+		}
+		
 	};
 }

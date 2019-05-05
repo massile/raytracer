@@ -5,11 +5,10 @@
 class Renderer {
 private:
 	Image::Image* image;
-	Scene::Camera* dCamera;
-	Shape::Collider **dContainer, **dSpheres;
-	Material::Material **dMaterials;
 
 	curandState *dRandState;
+	Scene::Camera* dCamera;
+	Shape::Collider **dContainer;
 
 	dim3 blocks;
 	dim3 threads;
@@ -19,25 +18,19 @@ public:
 		threads(numThreads, numThreads),
 		blocks(image->width / numThreads + 1, image->height / numThreads + 1)
 		{
-			cudaMallocManaged(&dCamera, sizeof(Scene::Camera));
-			cudaMemcpy(dCamera, hCamera, sizeof(Scene::Camera), cudaMemcpyHostToDevice);
-			
-			int shapeSize = 8*2 + 3;
-			int materialSize = 10;
-			cudaMalloc(&dContainer, sizeof(Shape::Collider*));
-			cudaMalloc(&dSpheres, shapeSize * sizeof(Shape::Collider*));
-			cudaMalloc(&dMaterials, materialSize * sizeof(Material::Lambert*));
-			InitColliders<<<1, 1>>>(dContainer, dSpheres, dMaterials, shapeSize);
-			cudaDeviceSynchronize();
-
 			cudaMalloc(&dRandState, image->width * image->height * sizeof(curandState));
 			InitRandomizer<<<blocks, threads>>>(dRandState, image->width, image->height);
+			cudaDeviceSynchronize();
+
+			cudaMallocManaged(&dCamera, sizeof(Scene::Camera));
+			cudaMemcpy(dCamera, hCamera, sizeof(Scene::Camera), cudaMemcpyHostToDevice);
+			cudaMalloc(&dContainer, sizeof(Shape::Collider*));
+			
+			InitColliders<<<1, 1>>>(dContainer);
 			cudaDeviceSynchronize();
 		}
 
 	~Renderer() {
-		cudaFree(dMaterials);
-		cudaFree(dSpheres);
 		cudaFree(dContainer);
 		cudaFree(dCamera);
 	}
@@ -51,22 +44,17 @@ public:
 
 __device__
 Image::Color ComputeColor(const Math::Ray& ray, Shape::Collider* collider, curandState* random, int depth) {
-	if (depth == 45) {
-		return Image::Color(0.f, 0.f, 0.f);
-	}
-
 	Shape::Interface interface;
 	if (collider->Hit(ray, interface, 0.001f, 10000.0f)) {
 		Image::Color color;
 		Math::Ray out;
+		Image::Color emitted = interface.material->Emitted(interface.point);
 		bool shouldScatter = interface.material->Scatter(ray, interface, color, out, random);
-		if (!shouldScatter) {
-			return Image::Color(0.f, 0.f, 0.f);
+		if (depth == 40 || !shouldScatter) {
+			return emitted;
 		}
 		return color * ComputeColor(out, collider, random, depth + 1);
 	}
 
-	Math::Vector normDir = Math::Normalize(ray.direction);
-	float t = 0.5f * normDir.y + 0.5f;
-	return Math::Lerp(t, Image::Color(1.0f, 1.0f, 1.0f), Image::Color(0.5f, 0.8f, 0.9f));
+	return Image::Color(0.1f, 0.1f, 0.15f);
 }
