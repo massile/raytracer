@@ -12,10 +12,15 @@
 __device__
 Image::Color ComputeColor(const Math::Ray& ray, Shape::Collider* collider, curandState* random, int depth = 0);
 
+/**
+ * Initializes the colliding objects of the scene
+ * @param container - the scene
+ */
 __global__
 void InitColliders(Shape::Collider** container) {
 	if (threadIdx.x != 0 || blockIdx.x != 0) return;	
 	
+	// Creates all the materials
 	Material::Material* materials[] = {
 		new Material::Dielectric(1.51f),
 		new Material::Lambert(new Material::ConstantTexture(Image::Color(1.0f, 0.4f, 0.3f))),
@@ -32,21 +37,22 @@ void InitColliders(Shape::Collider** container) {
 		))
 	};
 
+	// Creates the lights
 	Material::Material* lights[] = {
 		new Material::DiffuseLight(new Material::ConstantTexture(Image::Color(4.f, 3.f, 1.6f))),
 		new Material::DiffuseLight(new Material::ConstantTexture(Image::Color(0.6f, 1.f, 1.f)))
 	};
 
+	// Creates colliding objects
 	Shape::Collider** colliders = new Shape::Collider*[21];
-
+	// Spheres
 	colliders[17] = new Shape::Sphere(Math::Point(0, -1000.3f, -1.f), 1000.f, materials[9]);
 	colliders[0] = new Shape::Sphere(Math::Point(0, .7f, 0.f), -.95f, materials[0]);
 	colliders[18] = new Shape::Sphere(Math::Point(0, .7f, 0.f), 1.f, materials[0]);
-
 	// Plane
 	colliders[19] = new Shape::Plane(Math::Point(-2.f, 1.f, 5.f), 10.f, 10.f, lights[0]);
 	colliders[20] = new Shape::Plane(Math::Point(-2.f, 1.f, -5.f), 10.f, 10.f, lights[1]);
-
+	// Puts the spheres around a circle
 	float coef = 2.f*3.1415925f/9.f;
 	for (int i = 1; i < 9; ++i) {
 		colliders[i] = new Shape::Sphere(Math::Point(2.0f*cos(i * coef), 0, 2.0f*sin(i * coef)), 0.3f, materials[i]);			
