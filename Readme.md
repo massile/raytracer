@@ -4,7 +4,8 @@ Un moteur de rendu photoréaliste à partir de zéro.
 
 ### Video associée:
 
-(cliquer sur l'image)
+(cliquer sur l'image ci-dessous) <br/>
+
 [![](https://i.ytimg.com/vi/QYxlZ0TcbRg/sddefault.jpg)](https://www.youtube.com/watch?v=QYxlZ0TcbRg)
 
 ## Quelques nombres
